@@ -27,8 +27,61 @@ static int getIndexBySudokuPosition(int column, int field) {
     return index - 1;
 }
 
+void decodeSudokuFromFile(char path[], sudoku s) {
+    //read file from path and parse into sudoku
+    //WARNING: return can be empty / something could go wrong
+}
+
+void encodeSudokuToFile(char path[], sudoku s) {
+    //write file from sudoku data into a file under path
+    //WARNING: something could go wrong
+}
+
+void printSudoku(sudoku s) {
+    //print sudoku to the console...
+    printf("...\n");
+}
+
+void input(sudoku s) {
+    //ask for input file (.su)
+
+    //read input file
+    decodeSudokuFromFile("path", s);
+
+    //if valid: write data into "s" by performing array manipulation such as
+    s[0] = 1;
+
+    //print sudoku to the console
+    printSudoku(s);
+}
+
+void solve(sudoku input, sudoku output) {
+    //solve sudoku
+    //...
+
+    //write solution into output sudoku
+    output[0] = input[0];
+}
+
+void output(sudoku s) {
+    //print solved sudoku to the console
+    printSudoku(s);
+
+    //ask the user if he wants to save the solution (Y/n)
+
+    //if no finish application
+
+    //if yes, create a new file [input_name]_solution.su
+    //HINT: HANDLE EDGE CASES!
+    //if such a file already exists, give numbers for example:
+    //[input_name]_solution (1).su
+    encodeSudokuToFile("path", s);
+
+    //print a success message + path into the console
+}
+
 int main() {
-    //example usage
+    //------example to create and manipulate a sudoku-------
     sudoku s = {};
 
     //get the index for the field 1 / 8
@@ -38,5 +91,14 @@ int main() {
     s[index] = 7;
 
     printf("The value of field 8 in column 1 is %d. \n", s[index]);
+
+    //------main program-------
+    sudoku i = {};
+    sudoku o = {};
+
+    input(i);
+    solve(i, o);
+    output(o);
+
     return 0;
 }
