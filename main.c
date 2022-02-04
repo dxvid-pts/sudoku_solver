@@ -43,6 +43,10 @@ void printSudoku(sudoku s) {
 }
 
 void input(sudoku s) {
+    //123456789
+    //123456781
+    //...
+    //0 = leer
     //ask for input file (.su)
 
     //read input file
