@@ -37,9 +37,28 @@ void encodeSudokuToFile(char path[], sudoku s) {
     //WARNING: something could go wrong
 }
 
+//print sudoku to the console...
 void printSudoku(sudoku s) {
-    //print sudoku to the console...
-    printf("...\n");
+    printf("|-----------------------------------|\n");
+    for (int row = 1; row <= 9; ++row) {
+
+        for (int field = 1; field <= 9; ++field) {
+            if (field == 1) {
+                printf("| ");
+            }
+            int index = getIndexBySudokuPosition(row, field);
+            printf(" %d ", s[index]);
+            if (field == 3 || field == 6 || field == 9) {
+                printf(" | ");
+            }
+        }
+
+        if (row == 3 || row == 6 || row == 9) {
+            printf("\n|-----------------------------------|");
+        }
+
+        printf("\n");
+    }
 }
 
 void input(sudoku s) {
