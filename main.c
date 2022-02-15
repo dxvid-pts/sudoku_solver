@@ -1,5 +1,9 @@
 #include <stdio.h>
 
+typedef enum {
+    false = 0, true = !false
+} bool;
+
 typedef int sudoku[9 * 9];
 
 /*
