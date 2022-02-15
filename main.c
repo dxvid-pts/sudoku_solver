@@ -82,6 +82,48 @@ void input(sudoku s) {
     printSudoku(s);
 }
 
+bool sudokuCorrect(sudoku s) {
+    //test rows
+    for (int row = 1; row <= 9; ++row) {
+        for (int innerField = 1; innerField <= 9; ++innerField) {
+            int innerValue = s[getIndexBySudokuPosition(row, innerField)];
+            if (innerValue == 0) {
+                continue;
+            }
+            for (int outerField = 1; outerField <= 9; ++outerField) {
+                if (outerField == innerField) {
+                    continue;
+                }
+                int outerValue = s[getIndexBySudokuPosition(row, outerField)];
+                if (outerValue == innerValue) {
+                    return false;
+                }
+            }
+        }
+    }
+
+    //test columns
+    for (int column = 1; column <= 9; ++column) {
+        for (int innerField = 1; innerField <= 9; ++innerField) {
+            int innerValue = s[getIndexBySudokuPosition(innerField, column)];
+            if (innerValue == 0) {
+                continue;
+            }
+            for (int outerField = 1; outerField <= 9; ++outerField) {
+                if (outerField == innerField) {
+                    continue;
+                }
+                int outerValue = s[getIndexBySudokuPosition(outerField, column)];
+                if (outerValue == innerValue) {
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
 void solve(sudoku input, sudoku output) {
     //solve sudoku
     //...
