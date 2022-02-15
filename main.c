@@ -82,42 +82,94 @@ void input(sudoku s) {
     printSudoku(s);
 }
 
-bool sudokuCorrect(sudoku s) {
-    //test rows
-    for (int row = 1; row <= 9; ++row) {
-        for (int innerField = 1; innerField <= 9; ++innerField) {
-            int innerValue = s[getIndexBySudokuPosition(row, innerField)];
-            if (innerValue == 0) {
+bool rowCorrect(int row[9]) {
+    //checks every field in the row (1-9)
+    for (int innerField = 1; innerField <= 9; ++innerField) {
+        //get the value of the field
+        int innerValue = row[innerField];
+
+        //skip if empty
+        if (innerValue == 0) {
+            continue;
+        }
+
+        //loop through the row again and check if another field has the same value
+        for (int outerField = 1; outerField <= 9; ++outerField) {
+            //skip same if the field is the same
+            if (outerField == innerField) {
                 continue;
             }
-            for (int outerField = 1; outerField <= 9; ++outerField) {
-                if (outerField == innerField) {
-                    continue;
-                }
-                int outerValue = s[getIndexBySudokuPosition(row, outerField)];
-                if (outerValue == innerValue) {
-                    return false;
-                }
+
+            //get value of the comparing field
+            int outerValue = row[outerField];
+
+            //if fields from both loops have the same value return false as at least one number is present twice
+            if (outerValue == innerValue) {
+                return false;
             }
         }
     }
 
-    //test columns
-    for (int column = 1; column <= 9; ++column) {
-        for (int innerField = 1; innerField <= 9; ++innerField) {
-            int innerValue = s[getIndexBySudokuPosition(innerField, column)];
-            if (innerValue == 0) {
+    return true;
+}
+
+bool columnCorrect(int column[9]) {
+    //checks every field in the column (1-9)
+    for (int innerField = 1; innerField <= 9; ++innerField) {
+        //get the value of the field
+        int innerValue = column[innerField];
+
+        //skip if empty
+        if (innerValue == 0) {
+            continue;
+        }
+
+        //loop through the column again and check if another field has the same value
+        for (int outerField = 1; outerField <= 9; ++outerField) {
+            //skip same if the field is the same
+            if (outerField == innerField) {
                 continue;
             }
-            for (int outerField = 1; outerField <= 9; ++outerField) {
-                if (outerField == innerField) {
-                    continue;
-                }
-                int outerValue = s[getIndexBySudokuPosition(outerField, column)];
-                if (outerValue == innerValue) {
-                    return false;
-                }
+
+            //get value of the comparing field
+            int outerValue = column[outerField];
+
+            //if fields from both loops have the same value return false as at least one number is present twice
+            if (outerValue == innerValue) {
+                return false;
             }
+        }
+    }
+
+    return true;
+}
+
+bool sudokuCorrect(sudoku s) {
+    //test rows
+    for (int rowIndex = 1; rowIndex <= 9; ++rowIndex) {
+        //create row array from sudoku
+        int row[9] = {};
+        for (int field = 1; field <= 9; field++) {
+            row[field] = s[getIndexBySudokuPosition(rowIndex, field)];
+        }
+
+        //if a row is not correct the sudoku is not correct
+        if (rowCorrect(row) == false) {
+            return false;
+        }
+    }
+
+    //test columns
+    for (int columnIndex = 1; columnIndex <= 9; ++columnIndex) {
+        //create column array from sudoku
+        int column[9] = {};
+        for (int field = 1; field <= 9; field++) {
+            column[field] = s[getIndexBySudokuPosition(field, columnIndex)];
+        }
+
+        //if a column is not correct the sudoku is not correct
+        if (columnCorrect(column) == false) {
+            return false;
         }
     }
 
