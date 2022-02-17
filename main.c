@@ -272,8 +272,42 @@ bool solve(sudoku s) {
         }
     }
 
-    //write solution into output sudoku
-    output[0] = input[0];
+    //if no field was found stop recursive call -> done
+    if (foundField == false) return true;
+
+    //create individual arrays for the current index / row-column position
+    int rowArray[9] = {};
+    int columnArray[9] = {};
+    int boxArray[9] = {};
+    getRowValuesByIndex(s, row, rowArray);
+    getColumnValuesByIndex(s, column, columnArray);
+    getBoxValuesByIndex(s, row, column, boxArray);
+
+    //test out every value between 1 - 9
+    for (int guess = 1; guess <= 9; guess++) {
+
+        //check if the row would be correct with guess as value
+        if (arrayContains(guess, rowArray) == true) {
+            continue;
+        }
+
+        //check if the column would be correct with guess as value
+        if (arrayContains(guess, columnArray) == true) {
+            continue;
+        }
+
+        //check if the box would be correct with guess as value
+        if (arrayContains(guess, boxArray) == true) {
+            continue;
+        }
+
+        //at this point guess is correct
+        s[getIndexBySudokuPosition(row, column)] = guess;
+
+        if (solve(s)) return true;
+        s[getIndexBySudokuPosition(row, column)] = 0;
+    }
+    return false;
 }
 
 void output(sudoku s) {
