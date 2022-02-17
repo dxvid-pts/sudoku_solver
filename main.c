@@ -31,6 +31,65 @@ static int getIndexBySudokuPosition(int column, int field) {
     return index - 1;
 }
 
+//fills the given row parameter with according sudoku row values
+void getRowValuesByIndex(const sudoku s, int index, int row[9]) {
+    for (int field = 1; field <= 9; field++) {
+        row[field - 1] = s[getIndexBySudokuPosition(index, field)];
+    }
+}
+
+//fills the given column parameter with according sudoku row values
+void getColumnValuesByIndex(const sudoku s, int index, int column[9]) {
+    for (int field = 1; field <= 9; field++) {
+        column[field - 1] = s[getIndexBySudokuPosition(field, index)];
+    }
+}
+
+//fills the given column parameter with according sudoku row values
+void getBoxValuesByIndex(const sudoku s, int row, int column, int box[9]) {
+    int columnStart, columnEnd, rowStart, rowEnd;
+
+    //1-3
+    if (row < 4) {
+        rowStart = 1,
+                rowEnd = 3;
+    }
+        //4-6
+    else if (row < 7) {
+        rowStart = 4,
+                rowEnd = 6;
+    }
+        //7-9
+    else {
+        rowStart = 7,
+                rowEnd = 9;
+    }
+
+    //1-3
+    if (column < 4) {
+        columnStart = 1,
+                columnEnd = 3;
+    }
+        //4-6
+    else if (column < 7) {
+        columnStart = 4,
+                columnEnd = 6;
+    }
+        //7-9
+    else {
+        columnStart = 7,
+                columnEnd = 9;
+    }
+
+    int i = 0;
+    for (int rowIndex = rowStart; rowIndex <= rowEnd; rowIndex++) {
+        for (int columnIndex = columnStart; columnIndex <= columnEnd; columnIndex++) {
+            box[i] = s[getIndexBySudokuPosition(rowIndex, columnIndex)];
+            i++;
+        }
+    }
+}
+
 void decodeSudokuFromFile(char path[], sudoku s) {
     //read file from path and parse into sudoku
     //WARNING: return can be empty / something could go wrong
@@ -80,6 +139,15 @@ void input(sudoku s) {
 
     //print sudoku to the console
     printSudoku(s);
+}
+
+bool arrayContains(int value, const int array[9]) {
+    for (int i = 0; i < 9; i++) {
+        if (array[i] == value) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool rowCorrect(const int row[9]) {
@@ -176,9 +244,33 @@ bool sudokuCorrect(sudoku s) {
     return true;
 }
 
-void solve(sudoku input, sudoku output) {
-    //solve sudoku
-    //...
+//algorithm which correctly fills empty sudoku fields
+bool solve(sudoku s) {
+    //row index of an empty field
+    int row;
+
+    //column index of an empty field
+    int column;
+
+    //loops through every field in sudoku and searches for empty fields
+    bool foundField = false;
+    for (int rowIndex = 1; rowIndex <= 9; rowIndex++) {
+        for (int columnIndex = 1; columnIndex <= 9; columnIndex++) {
+            //if value is 0 -> field is empty
+            if (s[getIndexBySudokuPosition(rowIndex, columnIndex)] == 0) {
+                row = rowIndex;
+                column = columnIndex;
+
+                foundField = true;
+                break;
+            }
+        }
+
+        //stop search if field was found
+        if (foundField == true) {
+            break;
+        }
+    }
 
     //write solution into output sudoku
     output[0] = input[0];
