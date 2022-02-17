@@ -1,4 +1,4 @@
-C:\Users\janni\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\213.6777.58\bin\cmake\win\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=C:/Users/janni/AppData/Local/JetBrains/Toolbox/apps/CLion/ch-0/213.6777.58/bin/ninja/win/ninja.exe -G Ninja D:\CLionProjects\sudoku_solver
+/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/Applications/CLion.app/Contents/bin/ninja/mac/ninja -G Ninja /Users/david.petersmway.io/CLionProjects/sudoku_solver
 -- Configuring done
 -- Generating done
--- Build files have been written to: D:/CLionProjects/sudoku_solver/cmake-build-debug
+-- Build files have been written to: /Users/david.petersmway.io/CLionProjects/sudoku_solver/cmake-build-debug
