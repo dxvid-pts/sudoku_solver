@@ -37,6 +37,12 @@ static int getIndexBySudokuPosition(int column, int field) {
     return index - 1;
 }
 
+void copySudoku(const sudoku i, sudoku o) {
+    for (int index = 0; index <= 81; index++) {
+        o[index] = i[index];
+    }
+}
+
 //fills the given row parameter with according sudoku row values
 void getRowValuesByIndex(const sudoku s, int index, int row[9]) {
     for (int field = 1; field <= 9; field++) {
@@ -144,7 +150,7 @@ unsigned int fileExists(char *path) {
 }
 
 //print sudoku to the console...
-void printSudoku(sudoku s) {
+void printSudoku(const sudoku s) {
     printf("|-----------------------------------|\n");
     for (int row = 1; row <= 9; ++row) {
 
@@ -406,9 +412,10 @@ int main() {
     //------main program-------
     sudoku i = {};
     sudoku o = {};
+    copySudoku(i, o);
 
     input(i);
-    solve(i, o);
+    solve(o);
     output(o);
 
     return 0;
