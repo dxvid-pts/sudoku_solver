@@ -1,6 +1,12 @@
+#include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 typedef int sudoku[9 * 9];
+
+char *appendStrings(const char *old, const char *new);
+
+unsigned int fileExists(char *path);
 
 /*
  *
@@ -32,9 +38,46 @@ void decodeSudokuFromFile(char path[], sudoku s) {
     //WARNING: return can be empty / something could go wrong
 }
 
-void encodeSudokuToFile(char path[], sudoku s) {
+void encodeSudokuToFile(const char *path, const sudoku s) {
     //write file from sudoku data into a file under path
     //WARNING: something could go wrong
+    for (int i = 0; i < 1000; i++) {
+        size_t length = 2 + strlen(path) + 3;
+        if (i != 0) length += 4;
+        char *newPath = malloc(length);
+        if (i != 0) {
+            sprintf(newPath, "%s%s%s%i%s", "./", path, " (", i, ").su");
+        } else {
+            sprintf(newPath, "%s%s%s", "./", path, ".su");
+        }
+        unsigned int saved = 0;
+        if (!fileExists(newPath)) {
+            FILE *fileToWrite = fopen(newPath, "w+");
+            for (unsigned int row = 0; row < 9; row++) {
+                char *rowString = malloc(11);
+                for (unsigned int column = 0; column < 9; column++) {
+                    char value[1];
+                    sprintf(value, "%d", s[row * 9 + column]);
+                    memcpy(rowString + column, value, 1);
+                }
+                memcpy(rowString + 9, "\n\0", 2);
+                fputs(rowString, fileToWrite);
+                free(rowString);
+            }
+            saved = 1;
+            fclose(fileToWrite);
+            printf("%s%s%s\n", "Saved file ", newPath, " successfully!");
+        }
+        free(newPath);
+        if (saved == 1) break;
+    }
+}
+
+unsigned int fileExists(char *path) {
+    FILE *file = fopen(path, "r");
+    unsigned int exists = file != NULL;
+    fclose(file);
+    return exists;
 }
 
 //print sudoku to the console...
@@ -73,24 +116,40 @@ void input(sudoku s) {
 
     //if valid: write data into "s" by performing array manipulation such as
     s[0] = 1;
+    s[78] = 5;
+    s[54] = 2;
+    s[23] = 9;
 
     //print sudoku to the console
     printSudoku(s);
 }
 
-void solve(sudoku input, sudoku output) {
+void solve(const sudoku input, sudoku output) {
     //solve sudoku
     //...
 
     //write solution into output sudoku
-    output[0] = input[0];
+    for (int i = 0; i < 81; ++i) {
+        output[i] = input[i];
+    }
 }
 
-void output(sudoku s) {
+void output(const sudoku s) {
     //print solved sudoku to the console
     printSudoku(s);
 
     //ask the user if he wants to save the solution (Y/n)
+
+    const char input[1];
+    printf("Do you want to save the solution?\nYour answer (Y/n):");
+    scanf("%s", input);
+    if (strcmp(input, "y") == 0 || strcmp(input, "Y") == 0) {
+        char fileName[30];
+        printf("Please enter a file name:");
+        scanf("%s", fileName);
+        const char *completeFileName = appendStrings(fileName, "_solution");
+        encodeSudokuToFile(completeFileName, s);
+    }
 
     //if no finish application
 
@@ -98,9 +157,16 @@ void output(sudoku s) {
     //HINT: HANDLE EDGE CASES!
     //if such a file already exists, give numbers for example:
     //[input_name]_solution (1).su
-    encodeSudokuToFile("path", s);
+
 
     //print a success message + path into the console
+    printf("Program finished!\n");
+}
+
+char *appendStrings(const char *old, const char *new) {
+    char *out = malloc(strlen(old) + strlen(new) + 1);
+    sprintf(out, "%s%s", old, new);
+    return out;
 }
 
 int main() {
