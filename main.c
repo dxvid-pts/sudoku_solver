@@ -82,11 +82,11 @@ void input(sudoku s) {
     printSudoku(s);
 }
 
-bool rowCorrect(int row[9]) {
+bool rowCorrect(const int row[9]) {
     //checks every field in the row (1-9)
     for (int innerField = 1; innerField <= 9; ++innerField) {
         //get the value of the field
-        int innerValue = row[innerField];
+        int innerValue = row[getIndexBySudokuPosition(1, innerField)];
 
         //skip if empty
         if (innerValue == 0) {
@@ -101,7 +101,7 @@ bool rowCorrect(int row[9]) {
             }
 
             //get value of the comparing field
-            int outerValue = row[outerField];
+            int outerValue = row[getIndexBySudokuPosition(1, outerField)];
 
             //if fields from both loops have the same value return false as at least one number is present twice
             if (outerValue == innerValue) {
