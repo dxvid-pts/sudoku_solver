@@ -196,11 +196,14 @@ void printSudoku(const sudoku s) {
 
 void input() {
     //ask for input file (.su)
-    char fileName[30];
-    char path[50];
-    printf("Please provide a file name:");
+    char directoryName[209];
+    char fileName[50];
+    char path[259];
+    printf("Please provide the full directory for a .su file:");
+    scanf("%s", directoryName);
+    printf("Please provide the file name:");
     scanf("%s", fileName);
-    sprintf(path, "%s%s%s", "D:\\dev\\sudoku_solver\\", fileName, ".su");
+    sprintf(path, "%s%s%s%s", directoryName, "/", fileName, ".su");
 
     //read input file
     decodeSudokuFromFile(path);
