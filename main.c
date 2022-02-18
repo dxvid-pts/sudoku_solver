@@ -1,14 +1,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
+#include <errno.h>
 
 typedef enum {
     false = 0, true = !false
 } bool;
 
 typedef int sudoku[9 * 9];
+
 sudoku IMPORT_SUDOKU;
-char *appendStrings(const char *old, const char *new);
+char DIRECTORY[209];
 
 unsigned int fileExists(char *path);
 
@@ -28,19 +31,33 @@ unsigned int fileExists(char *path);
 
 //returns the array index of the given position.
 //see the table above for an explanation.
-static int getIndexBySudokuPosition(int column, int field) {
+static int getIndexBySudokuPosition(int row, int column) {
     int index = 0;
-    for (int i = 0; i < column - 1; i++) {
+    for (int i = 0; i < row - 1; i++) {
         index = index + 9;
     }
-    index = index + field;
+    index = index + column;
     return index - 1;
 }
 
-void copySudoku(const sudoku i, sudoku o) {
-    for (int index = 0; index <= 81; index++) {
-        o[index] = i[index];
+/* msleep(): Sleep for the requested number of milliseconds. */
+int msleep(long msec) {
+    struct timespec ts;
+    int res;
+
+    if (msec < 0) {
+        errno = EINVAL;
+        return -1;
     }
+
+    ts.tv_sec = msec / 1000;
+    ts.tv_nsec = (msec % 1000) * 1000000;
+
+    do {
+        res = nanosleep(&ts, &ts);
+    } while (res && errno == EINTR);
+
+    return res;
 }
 
 //fills the given row parameter with according sudoku row values
@@ -102,30 +119,34 @@ void getBoxValuesByIndex(const sudoku s, int row, int column, int box[9]) {
     }
 }
 
-void decodeSudokuFromFile(char path[]) {
+int decodeSudokuFromFile(char path[259]) {
     //read file from path and parse into sudoku
     //WARNING: return can be empty / something could go wrong
-    char lineFromFile[9];
+    char lineFromFile[9] = {};
     FILE *stream;
     stream = fopen(path, "r");
     int row = 0;
     int counter = 0;
-    if (stream != NULL){
+    if (stream != NULL) {
         while (row < 9) {
-            fscanf(stream, "%s", &lineFromFile);
+            fscanf(stream, "%s", lineFromFile);
             for (int position = 0; position < 9; position++) {
                 // Deactivated as long as getIndexBySudokuPosition is broken
                 //int index = t[getIndexBySudokuPosition(position, row)];
                 char singleDigit = lineFromFile[position];
                 int sudokuNumber = singleDigit - '0';
                 //t[index] = sudokuNumber;
-                IMPORT_SUDOKU[counter] = sudokuNumber;
+                IMPORT_SUDOKU[getIndexBySudokuPosition(row + 1, position + 1)] = sudokuNumber;
                 counter++;
             }
             row++;
         }
+    } else {
+        return 1;
     }
     fclose(stream);
+
+    return 0;
 }
 
 void encodeSudokuToFile(const char *path, const sudoku s) {
@@ -138,16 +159,16 @@ void encodeSudokuToFile(const char *path, const sudoku s) {
         if (index != 0) length += 4;
         char *newPath = malloc(length);
         if (index != 0) {
-            sprintf(newPath, "%s%s%s%i%s", "./", path, " (", index, ").su");
+            sprintf(newPath, "%s%s%s%s%lu%s", DIRECTORY, "/", path, " (", index, ").su");
         } else {
-            sprintf(newPath, "%s%s%s", "./", path, ".su");
+            sprintf(newPath, "%s%s%s%s", DIRECTORY, "/", path, ".su");
         }
         if (!fileExists(newPath)) {
             FILE *fileToWrite = fopen(newPath, "w+");
             for (unsigned int row = 0; row < 9; row++) {
                 char *rowString = malloc(11);
                 for (unsigned int column = 0; column < 9; column++) {
-                    char value[1];
+                    char value[100];
                     sprintf(value, "%d", s[row * 9 + column]);
                     memcpy(rowString + column, value, 1);
                 }
@@ -157,7 +178,7 @@ void encodeSudokuToFile(const char *path, const sudoku s) {
             }
             saved = 1;
             fclose(fileToWrite);
-            printf("%s%s%s\n", "Saved file ", newPath, " successfully!");
+            printf("%s%s%s\n", "Successfully saved file ", newPath, "!");
         }
         free(newPath);
         index++;
@@ -195,22 +216,32 @@ void printSudoku(const sudoku s) {
     }
 }
 
-void input() {
+int input() {
     //ask for input file (.su)
-    char directoryName[209];
-    char fileName[50];
-    char path[259];
-    printf("Please provide the full directory for a .su file:");
-    scanf("%s", directoryName);
+    char fileName[50] = {};
+    char path[259] = {};
+    printf("Please provide the full path to a .su file:");
+    scanf("%s", DIRECTORY);
     printf("Please provide the file name:");
     scanf("%s", fileName);
-    sprintf(path, "%s%s%s%s", directoryName, "/", fileName, ".su");
+    sprintf(path, "%s%s%s%s", DIRECTORY, "/", fileName, ".su");
+
+    printf("Detected path: %s\n", path);
+
+    //Delay for better readability
+    msleep(2000);
 
     //read input file
-    decodeSudokuFromFile(path);
+    if (!decodeSudokuFromFile(path)) {
+        //print sudoku to the console
+        printf("The following sudoku puzzle will be solved:\n");
 
-    //print sudoku to the console
-    printSudoku(IMPORT_SUDOKU);
+        printSudoku(IMPORT_SUDOKU);
+    } else {
+        printf("Something went wrong while reading the content of the given path.\n");
+        return 1;
+    }
+    return 0;
 }
 
 bool arrayContains(int value, const int array[9]) {
@@ -220,100 +251,6 @@ bool arrayContains(int value, const int array[9]) {
         }
     }
     return false;
-}
-
-bool rowCorrect(const int row[9]) {
-    //checks every field in the row (1-9)
-    for (int innerField = 1; innerField <= 9; ++innerField) {
-        //get the value of the field
-        int innerValue = row[getIndexBySudokuPosition(1, innerField)];
-
-        //skip if empty
-        if (innerValue == 0) {
-            continue;
-        }
-
-        //loop through the row again and check if another field has the same value
-        for (int outerField = 1; outerField <= 9; ++outerField) {
-            //skip same if the field is the same
-            if (outerField == innerField) {
-                continue;
-            }
-
-            //get value of the comparing field
-            int outerValue = row[getIndexBySudokuPosition(1, outerField)];
-
-            //if fields from both loops have the same value return false as at least one number is present twice
-            if (outerValue == innerValue) {
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
-
-bool columnCorrect(int column[9]) {
-    //checks every field in the column (1-9)
-    for (int innerField = 1; innerField <= 9; ++innerField) {
-        //get the value of the field
-        int innerValue = column[innerField];
-
-        //skip if empty
-        if (innerValue == 0) {
-            continue;
-        }
-
-        //loop through the column again and check if another field has the same value
-        for (int outerField = 1; outerField <= 9; ++outerField) {
-            //skip same if the field is the same
-            if (outerField == innerField) {
-                continue;
-            }
-
-            //get value of the comparing field
-            int outerValue = column[outerField];
-
-            //if fields from both loops have the same value return false as at least one number is present twice
-            if (outerValue == innerValue) {
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
-
-bool sudokuCorrect(sudoku s) {
-    //test rows
-    for (int rowIndex = 1; rowIndex <= 9; ++rowIndex) {
-        //create row array from sudoku
-        int row[9] = {};
-        for (int field = 1; field <= 9; field++) {
-            row[field] = s[getIndexBySudokuPosition(rowIndex, field)];
-        }
-
-        //if a row is not correct the sudoku is not correct
-        if (rowCorrect(row) == false) {
-            return false;
-        }
-    }
-
-    //test columns
-    for (int columnIndex = 1; columnIndex <= 9; ++columnIndex) {
-        //create column array from sudoku
-        int column[9] = {};
-        for (int field = 1; field <= 9; field++) {
-            column[field] = s[getIndexBySudokuPosition(field, columnIndex)];
-        }
-
-        //if a column is not correct the sudoku is not correct
-        if (columnCorrect(column) == false) {
-            return false;
-        }
-    }
-
-    return true;
 }
 
 //algorithm which correctly fills empty sudoku fields
@@ -388,14 +325,18 @@ void output(const sudoku s) {
 
     //ask the user if he wants to save the solution (Y/n)
 
-    const char input[1];
+    char input[1] = {};
     printf("Do you want to save the solution?\nYour answer (Y/n):");
     scanf("%s", input);
     if (strcmp(input, "y") == 0 || strcmp(input, "Y") == 0) {
-        char fileName[30];
+        char fileName[50] = {};
         printf("Please enter a file name:");
         scanf("%s", fileName);
-        const char *completeFileName = appendStrings(fileName, "_solution");
+
+        char completeFileName[100] = {};
+
+        sprintf(completeFileName, "%s%s", fileName, "_solution");
+
         encodeSudokuToFile(completeFileName, s);
     }
 
@@ -411,32 +352,24 @@ void output(const sudoku s) {
     printf("Program finished!\n");
 }
 
-char *appendStrings(const char *old, const char *new) {
-    char *out = malloc(strlen(old) + strlen(new) + 1);
-    sprintf(out, "%s%s", old, new);
-    return out;
-}
-
 int main() {
-    //------example to create and manipulate a sudoku-------
-    sudoku s = {};
-
-    //get the index for the field 1 / 8
-    int index = getIndexBySudokuPosition(1, 8);
-
-    //write a value into the field
-    s[index] = 7;
-
-    printf("The value of field 8 in column 1 is %d. \n", s[index]);
-
     //------main program-------
-    sudoku o = {};
-    input();
+    if (input()) {
+        return 1;
+    }
 
-    copySudoku(IMPORT_SUDOKU, o);
+    //Delay for better readability
+    msleep(400);
 
-    solve(o);
-    output(o);
+    printf("Solving the sudoku puzzle...\n");
+
+    //Delay for better readability
+    // msleep(2500);
+    //copySudoku(IMPORT_SUDOKU, o);
+
+    solve(IMPORT_SUDOKU);
+
+    output(IMPORT_SUDOKU);
 
     return 0;
 }
