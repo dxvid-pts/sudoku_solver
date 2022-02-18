@@ -110,16 +110,17 @@ void decodeSudokuFromFile(char path[], sudoku s) {
 void encodeSudokuToFile(const char *path, const sudoku s) {
     //write file from sudoku data into a file under path
     //WARNING: something could go wrong
-    for (int i = 0; i < 1000; i++) {
+    unsigned long int index = 0;
+    unsigned int saved = 0;
+    while (!saved) {
         size_t length = 2 + strlen(path) + 3;
-        if (i != 0) length += 4;
+        if (index != 0) length += 4;
         char *newPath = malloc(length);
-        if (i != 0) {
-            sprintf(newPath, "%s%s%s%i%s", "./", path, " (", i, ").su");
+        if (index != 0) {
+            sprintf(newPath, "%s%s%s%i%s", "./", path, " (", index, ").su");
         } else {
             sprintf(newPath, "%s%s%s", "./", path, ".su");
         }
-        unsigned int saved = 0;
         if (!fileExists(newPath)) {
             FILE *fileToWrite = fopen(newPath, "w+");
             for (unsigned int row = 0; row < 9; row++) {
@@ -138,7 +139,7 @@ void encodeSudokuToFile(const char *path, const sudoku s) {
             printf("%s%s%s\n", "Saved file ", newPath, " successfully!");
         }
         free(newPath);
-        if (saved == 1) break;
+        index++;
     }
 }
 
