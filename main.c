@@ -105,19 +105,19 @@ void getBoxValuesByIndex(const sudoku s, int row, int column, int box[9]) {
 void decodeSudokuFromFile(char path[], sudoku s) {
     //read file from path and parse into sudoku
     //WARNING: return can be empty / something could go wrong
-    char arrayOfChars[9];
+    char lineFromFile[9];
     FILE *stream;
     stream = fopen(path, "r");
     int row = 0;
 
     if (stream != NULL){
         while (row < 9) {
-            fscanf(stream, "%s", &arrayOfChars[row]);
+            fscanf(stream, "%s", &lineFromFile);
             for (int position = 0; position < 9; position++) {
                 int index = s[getIndexBySudokuPosition(position, row)];
-                char number = arrayOfChars[position];
-                int inter = number - '0';
-                s[index] = inter;
+                char singleDigit = lineFromFile[position];
+                int sudokuNumber = singleDigit - '0';
+                s[index] = sudokuNumber;
             }
             row++;
         }
