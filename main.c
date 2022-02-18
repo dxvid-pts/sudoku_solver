@@ -229,7 +229,7 @@ int input() {
     printf("Detected path: %s\n", path);
 
     //Delay for better readability
-    msleep(2000);
+    msleep(500);
 
     //read input file
     if (!decodeSudokuFromFile(path)) {
@@ -319,7 +319,7 @@ bool solve(sudoku s) {
     return false;
 }
 
-void output(const sudoku s) {
+int output(const sudoku s) {
     //print solved sudoku to the console
     printSudoku(s);
 
@@ -350,6 +350,7 @@ void output(const sudoku s) {
 
     //print a success message + path into the console
     printf("Program finished!\n");
+    return 0;
 }
 
 int main() {
@@ -359,17 +360,17 @@ int main() {
     }
 
     //Delay for better readability
-    msleep(400);
+    msleep(100);
 
     printf("Solving the sudoku puzzle...\n");
 
     //Delay for better readability
-    // msleep(2500);
-    //copySudoku(IMPORT_SUDOKU, o);
+    msleep(4000);
 
-    solve(IMPORT_SUDOKU);
+    if (!solve(IMPORT_SUDOKU)) {
+        printf("Sudoku couldn't be solved.");
+        return 1;
+    }
 
-    output(IMPORT_SUDOKU);
-
-    return 0;
+    return output(IMPORT_SUDOKU);
 }
