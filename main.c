@@ -7,7 +7,7 @@ typedef enum {
 } bool;
 
 typedef int sudoku[9 * 9];
-
+sudoku IMPORT_SUDOKU;
 char *appendStrings(const char *old, const char *new);
 
 unsigned int fileExists(char *path);
@@ -102,9 +102,30 @@ void getBoxValuesByIndex(const sudoku s, int row, int column, int box[9]) {
     }
 }
 
-void decodeSudokuFromFile(char path[], sudoku s) {
+void decodeSudokuFromFile(char path[]) {
     //read file from path and parse into sudoku
     //WARNING: return can be empty / something could go wrong
+    char lineFromFile[9];
+    FILE *stream;
+    stream = fopen(path, "r");
+    int row = 0;
+    int counter = 0;
+    if (stream != NULL){
+        while (row < 9) {
+            fscanf(stream, "%s", &lineFromFile);
+            for (int position = 0; position < 9; position++) {
+                // Deactivated as long as getIndexBySudokuPosition is broken
+                //int index = t[getIndexBySudokuPosition(position, row)];
+                char singleDigit = lineFromFile[position];
+                int sudokuNumber = singleDigit - '0';
+                //t[index] = sudokuNumber;
+                IMPORT_SUDOKU[counter] = sudokuNumber;
+                counter++;
+            }
+            row++;
+        }
+    }
+    fclose(stream);
 }
 
 void encodeSudokuToFile(const char *path, const sudoku s) {
@@ -174,24 +195,22 @@ void printSudoku(const sudoku s) {
     }
 }
 
-void input(sudoku s) {
-    //123456789
-    //123456781
-    //...
-    //0 = leer
+void input() {
     //ask for input file (.su)
+    char directoryName[209];
+    char fileName[50];
+    char path[259];
+    printf("Please provide the full directory for a .su file:");
+    scanf("%s", directoryName);
+    printf("Please provide the file name:");
+    scanf("%s", fileName);
+    sprintf(path, "%s%s%s%s", directoryName, "/", fileName, ".su");
 
     //read input file
-    decodeSudokuFromFile("path", s);
-
-    //if valid: write data into "s" by performing array manipulation such as
-    s[0] = 1;
-    s[78] = 5;
-    s[54] = 2;
-    s[23] = 9;
+    decodeSudokuFromFile(path);
 
     //print sudoku to the console
-    printSudoku(s);
+    printSudoku(IMPORT_SUDOKU);
 }
 
 bool arrayContains(int value, const int array[9]) {
@@ -411,11 +430,11 @@ int main() {
     printf("The value of field 8 in column 1 is %d. \n", s[index]);
 
     //------main program-------
-    sudoku i = {};
     sudoku o = {};
-    copySudoku(i, o);
+    input();
 
-    input(i);
+    copySudoku(IMPORT_SUDOKU, o);
+
     solve(o);
     output(o);
 
