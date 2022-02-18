@@ -10,7 +10,9 @@ A command line application for solving sudoku puzzles written in C.
 2. Save the sudoku you want to solve using the file structure below.
 
    A `.su` contains 9 rows. Each row has 9 fields and is written in a separate line. Zeros are representing empty
-   fields. Example:
+   fields.
+
+   The following images visualize the structure:
 
 <p float="left">
   <img src="https://user-images.githubusercontent.com/98170949/154613964-cd23f411-a3c3-43d8-9552-6e65671c0c57.png" width="250" height="250">
